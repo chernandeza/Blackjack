@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlackjackLibrary
 {
@@ -57,6 +53,7 @@ namespace BlackjackLibrary
         Ready,
         Deal,
         Stay,
+        Tie,
         FiveCards,
         TwentyOne,
         BlackJack,

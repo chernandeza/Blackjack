@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
@@ -116,7 +114,11 @@ namespace BlackjackLibrary
         {
             listener = new TcpListener(ip, port);
             listener.Start();
-            this.running = true;            
+            this.running = true;
+            lock (LogWriter)
+            {
+                LogWriter.writeInfo("GameServer Initialized. Waiting for players");
+            }
             Listen();
         }
 
@@ -280,7 +282,7 @@ namespace BlackjackLibrary
             }
         }
 
-        public void SendMessage(Message clientMessage, int player)
+        /*public void SendMessage(Message clientMessage, int player)
         {
             NetworkStream netStream;       // Stream del canal de respuesta para enviar datos hacia el cliente.
             //BinaryReader netDataReader;    // Utilizado para leer datos del canal de comunicación
@@ -338,7 +340,7 @@ namespace BlackjackLibrary
                 default:
                     break;
             }
-        }
+        }*/
 
         public void Finish()
         {
@@ -358,6 +360,21 @@ namespace BlackjackLibrary
                 {
                     LogWriter.writeError("Error in NetworkServer.Finish()" + Environment.NewLine + ex.Message); 
                 }
+            }
+        }
+
+        /// <summary>
+        /// Este metodo revisa el estado actual del juego 
+        /// y determina si hay que enviar mensajes a los clientes
+        /// </summary>
+        /// <returns>El numero del jugador que gana, 
+        /// 0 si hay empate y -1 si el juego continua
+        /// </returns>
+        private int CheckGameStatus()
+        {
+            lock (this)
+            {
+                return 0;
             }
         }
     }

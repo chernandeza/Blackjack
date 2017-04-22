@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlackjackLibrary
 {
@@ -99,7 +96,7 @@ namespace BlackjackLibrary
                     {
                         if (this.Cards[0].Value == CardValue.Jack || this.Cards[0].Value == CardValue.Queen || this.Cards[0].Value == CardValue.King)
                         {
-                            this.Status = PlayerStatus.Stay;
+                            this.Status = PlayerStatus.BlackJack;
                             OnBlackJack();
                             return 0;
                         }
@@ -149,7 +146,7 @@ namespace BlackjackLibrary
                     {
                         if (this.Cards[0].Value == CardValue.Ace)
                         {
-                            this.Status = PlayerStatus.Stay;
+                            this.Status = PlayerStatus.BlackJack;
                             OnBlackJack();
                             return 0;                            
                         }
@@ -164,7 +161,7 @@ namespace BlackjackLibrary
             }
             if (this.CardCount == 5 && this.Total < 21)
             {
-                this.Status = PlayerStatus.Stay;
+                this.Status = PlayerStatus.FiveCards;
                 OnFiveCards();
                 return 0;
             }
@@ -179,13 +176,14 @@ namespace BlackjackLibrary
                 }
                 catch (Exception)
                 {
-                    this.Status = PlayerStatus.Stay;
+                    this.Status = PlayerStatus.Lost;
                     OnPlayerLooses();
                     return 0;
                 }                
             }
             if (this.Total == 21)
             {
+                this.Status = PlayerStatus.TwentyOne;
                 OnTwentyOne();
                 return 0;
             }
@@ -196,6 +194,10 @@ namespace BlackjackLibrary
     public enum PlayerStatus
     {
         Playing,
-        Stay
+        Stay,
+        FiveCards,
+        TwentyOne,
+        BlackJack,
+        Lost
     }
 }

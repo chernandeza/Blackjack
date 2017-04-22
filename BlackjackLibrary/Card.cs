@@ -48,7 +48,6 @@ namespace BlackjackLibrary
         Spades
     }
 
-    //Si da tiempo, cambiar value para que sea de tipo CardValue.
     public enum CardValue 
     {
         One, //This value is used to control the Ace as 11 or Ace as 1 condition.

@@ -15,11 +15,13 @@ namespace DealerServer
         Deck myDealerDeck; //Eliminar
         //Task taskAsync;
         private static EvtLogWriter LogWriter = new EvtLogWriter("BlackJackGame", "Application"); //Allows to write to Windows Event Logs
+        int nextPlayer;
 
         public DealerForm()
         {
             ImageDictionary = new Dictionary<string, Image>();
-            BlackJackServer = new GameServer();            
+            BlackJackServer = new GameServer();
+            nextPlayer = 1;         
             InitializeComponent();
         }
         
@@ -65,7 +67,17 @@ namespace DealerServer
             pb.Image = ImageDictionary[imgID];
             pb.Size = new Size(50, 70);
             pb.SizeMode = PictureBoxSizeMode.StretchImage;
-            flowLayoutPlayerOne.Controls.Add(pb);
+            switch (nextPlayer)
+            {
+                case 1:
+                    flowLayoutPlayerOne.Controls.Add(pb);
+                    nextPlayer = 2;
+                    break;
+                case 2:
+                    flowLayoutPlayerTwo.Controls.Add(pb);
+                    nextPlayer = 1;
+                    break;
+            }            
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
