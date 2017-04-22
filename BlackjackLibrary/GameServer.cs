@@ -57,54 +57,6 @@ namespace BlackjackLibrary
             gameDealer = new Dealer();
             playerOne = new Player();
             playerTwo = new Player();
-            this.playerOne.BlackJack += PlayerOne_BlackJack;
-            this.playerOne.FiveCards += PlayerOne_FiveCards;
-            this.playerOne.PlayerLooses += PlayerOne_PlayerLooses;
-            this.playerOne.TwentyOne += PlayerOne_TwentyOne;
-            this.playerTwo.BlackJack += PlayerTwo_BlackJack;
-            this.playerTwo.FiveCards += PlayerTwo_FiveCards;
-            this.playerTwo.PlayerLooses += PlayerTwo_PlayerLooses;
-            this.playerTwo.TwentyOne += PlayerTwo_TwentyOne;            
-        }
-
-        private void PlayerTwo_TwentyOne(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerTwo_PlayerLooses(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerTwo_FiveCards(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerTwo_BlackJack(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerOne_TwentyOne(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerOne_PlayerLooses(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerOne_FiveCards(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void PlayerOne_BlackJack(object sender, EventArgs e)
-        {
-            /*Aqui debo modificar el estado del juego*/
         }
 
         /// <summary>
@@ -269,9 +221,25 @@ namespace BlackjackLibrary
                         default:
                             break;
                     }
-                    /*Aqui debe ir la logica de revisar el estado actual del juego
-                    Esto debe realizarse con estructuras de datos compartidas entre los hilos
-                    Por lo tanto aqui hay que utilizar lock*/
+                    int resultado = this.CheckGameStatus();
+                    switch (resultado)
+                    {
+                        case 0:
+                            //Empate
+                            //Comunicar por red a cada cliente
+                            break;
+                        case 1:
+                            //Jugador 1 gana
+                            //Comunicar por red a cada cliente
+                            break;
+                        case 2:
+                            //Jugador 2 gana
+                            //Comunicar por red a cada cliente
+                            break;
+                        default:
+                            //Juego continua;
+                            continue;
+                    }
                 }
             }
             catch (Exception ex)
@@ -374,6 +342,23 @@ namespace BlackjackLibrary
         {
             lock (this)
             {
+                switch (playerOne.Status)
+                {
+                    case PlayerStatus.FiveCards:
+                        break;
+                    case PlayerStatus.BlackJack:
+                        break;
+                    case PlayerStatus.TwentyOne:
+                        break;
+                    case PlayerStatus.Stay:
+                        break;
+                    case PlayerStatus.Lost:
+                        break;
+                    case PlayerStatus.Playing:
+                        break;
+                    default:
+                        break;
+                }
                 return 0;
             }
         }

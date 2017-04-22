@@ -37,36 +37,6 @@ namespace BlackjackLibrary
             set { _status = value; }
         }
 
-        public event EventHandler FiveCards; //This player has 5 minor cards (Less than 21)
-        public event EventHandler TwentyOne; //This player's card sum equals 21
-        public event EventHandler PlayerLooses; //This player's cards sum is greater than 21
-        public event EventHandler BlackJack; //This player has an Ace + J, Q or K.
-
-        /*Estos métodos validan que la suscripción a los eventos no esté vacía. Si está vacía, no lanza el evento de forma innecesaria*/
-        virtual protected void OnFiveCards()
-        {
-            if (FiveCards != null)
-                FiveCards(this, EventArgs.Empty);
-        }
-
-        virtual protected void OnTwentyOne()
-        {
-            if (TwentyOne != null)
-                TwentyOne(this, EventArgs.Empty);
-        }
-
-        virtual protected void OnPlayerLooses()
-        {
-            if (PlayerLooses != null)
-                PlayerLooses(this, EventArgs.Empty);
-        }
-
-        virtual protected void OnBlackJack()
-        {
-            if (BlackJack != null)
-                BlackJack(this, EventArgs.Empty);
-        }
-
         public Player()
         {
             this._myCards = new List<Card>();
@@ -86,7 +56,7 @@ namespace BlackjackLibrary
         /// - The player has 5 cards and their sum is less than 21
         /// If none of the previous conditions are met, the function returns the sum of the cards in the player's deck.
         /// </returns>
-        public int Play(Card newCard)
+        public void Play(Card newCard)
         {
             Cards.Add(newCard);
             switch (newCard.Value)
@@ -97,8 +67,6 @@ namespace BlackjackLibrary
                         if (this.Cards[0].Value == CardValue.Jack || this.Cards[0].Value == CardValue.Queen || this.Cards[0].Value == CardValue.King)
                         {
                             this.Status = PlayerStatus.BlackJack;
-                            OnBlackJack();
-                            return 0;
                         }
                     }
                     int tempTotal = this._myTotal + 11;
@@ -147,8 +115,6 @@ namespace BlackjackLibrary
                         if (this.Cards[0].Value == CardValue.Ace)
                         {
                             this.Status = PlayerStatus.BlackJack;
-                            OnBlackJack();
-                            return 0;                            
                         }
                     }
                     else
@@ -162,8 +128,6 @@ namespace BlackjackLibrary
             if (this.CardCount == 5 && this.Total < 21)
             {
                 this.Status = PlayerStatus.FiveCards;
-                OnFiveCards();
-                return 0;
             }
             if (this.Total > 21)
             {
@@ -177,17 +141,12 @@ namespace BlackjackLibrary
                 catch (Exception)
                 {
                     this.Status = PlayerStatus.Lost;
-                    OnPlayerLooses();
-                    return 0;
                 }                
             }
             if (this.Total == 21)
             {
                 this.Status = PlayerStatus.TwentyOne;
-                OnTwentyOne();
-                return 0;
             }
-            return this.Total;
         }
     }
 
