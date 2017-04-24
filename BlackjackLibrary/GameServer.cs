@@ -181,22 +181,30 @@ namespace BlackjackLibrary
                                 case 1:
                                     lock (gameDealer)
                                     {
-                                        playerOne.Play(gameDealer.Deal());                                        
-                                    }
-                                    lock (LogWriter)
-                                    {
-                                        LogWriter.writeInfo("Dealt a card to player one");
-                                    }
+                                        Card dCard = gameDealer.Deal();
+                                        playerOne.Play(dCard);
+                                        //Enviar mensaje a jugador 1
+                                        GameMessage gm = new GameMessage(dCard, Message.Deal, 1);
+                                        SendMessage(gm, gm.PlayerNumber);
+                                        lock (LogWriter)
+                                        {
+                                            LogWriter.writeInfo("Dealt a card to player one: " + dCard.Value.ToString() + " of " + dCard.Suit.ToString());
+                                        }
+                                    }                                    
                                     break;
                                 case 2:
                                     lock (gameDealer)
                                     {
-                                        playerTwo.Play(gameDealer.Deal());
-                                    }
-                                    lock (LogWriter)
-                                    {
-                                        LogWriter.writeInfo("Dealt a card to player two");
-                                    }
+                                        Card dCard = gameDealer.Deal();
+                                        playerTwo.Play(dCard);
+                                        //Enviar mensaje a jugador 2
+                                        GameMessage gm = new GameMessage(dCard, Message.Deal, 2);
+                                        SendMessage(gm, gm.PlayerNumber);
+                                        lock (LogWriter)
+                                        {
+                                            LogWriter.writeInfo("Dealt a card to player two: " + dCard.Value.ToString() + " of " + dCard.Suit.ToString());
+                                        }
+                                    }                                    
                                     break;
                                 default:
                                     break;
@@ -207,12 +215,16 @@ namespace BlackjackLibrary
                             switch (playerNum)
                             {
                                 case 1:
-                                    playerOne.Status = PlayerStatus.Stay;
-                                    //OnPlayerStatusChange
+                                    lock (playerOne)
+                                    {
+                                        playerOne.Status = PlayerStatus.Stay; 
+                                    }
                                     break;
                                 case 2:
-                                    playerTwo.Status = PlayerStatus.Stay;
-                                    //OnPlayerStatusChange
+                                    lock (playerTwo)
+                                    {
+                                        playerTwo.Status = PlayerStatus.Stay; 
+                                    }
                                     break;
                                 default:
                                     break;
@@ -221,24 +233,38 @@ namespace BlackjackLibrary
                         default:
                             break;
                     }
-                    int resultado = this.CheckGameStatus();
+                    GameResult resultado = this.CheckGameStatus();
                     switch (resultado)
                     {
-                        case 0:
-                            //Empate
-                            //Comunicar por red a cada cliente
+                        case GameResult.Tie: //Empate
+                            GameMessage gm1Tie = new GameMessage(new Card(), Message.Tie, 1);
+                            SendMessage(gm1Tie, gm1Tie.PlayerNumber);
+                            GameMessage gm2Tie = new GameMessage(new Card(), Message.Tie, 2);
+                            SendMessage(gm2Tie, gm2Tie.PlayerNumber);
+                            Finish();
                             break;
-                        case 1:
-                            //Jugador 1 gana
-                            //Comunicar por red a cada cliente
+                        case GameResult.PlayerOneWins:
+                            GameMessage gm1Win1 = new GameMessage(new Card(), Message.PlayerWins, 1);
+                            SendMessage(gm1Win1, gm1Win1.PlayerNumber);
+                            GameMessage gm2Win1 = new GameMessage(new Card(), Message.PlayerLooses, 2);
+                            SendMessage(gm2Win1, gm2Win1.PlayerNumber);
+                            Finish();
                             break;
-                        case 2:
-                            //Jugador 2 gana
-                            //Comunicar por red a cada cliente
+                        case GameResult.PlayerTwoWins:
+                            GameMessage gm1Win2 = new GameMessage(new Card(), Message.PlayerLooses, 1);
+                            SendMessage(gm1Win2, gm1Win2.PlayerNumber);
+                            GameMessage gm2Win2 = new GameMessage(new Card(), Message.PlayerWins, 2);
+                            SendMessage(gm2Win2, gm2Win2.PlayerNumber);
+                            Finish();
+                            break;
+                        case GameResult.Continue:
+                            GameMessage gm1Cont = new GameMessage(new Card(), Message.Ready, 1);
+                            SendMessage(gm1Cont, gm1Cont.PlayerNumber);
+                            GameMessage gm2Cont = new GameMessage(new Card(), Message.Ready, 2);
+                            SendMessage(gm2Cont, gm2Cont.PlayerNumber);
                             break;
                         default:
-                            //Juego continua;
-                            continue;
+                            break;
                     }
                 }
             }
@@ -250,7 +276,7 @@ namespace BlackjackLibrary
             }
         }
 
-        /*public void SendMessage(Message clientMessage, int player)
+        public void SendMessage(GameMessage clientMessage, int player)
         {
             NetworkStream netStream;       // Stream del canal de respuesta para enviar datos hacia el cliente.
             //BinaryReader netDataReader;    // Utilizado para leer datos del canal de comunicación
@@ -258,57 +284,67 @@ namespace BlackjackLibrary
             switch (player)
             {
                 case 1:
-                    try
+                    lock (playerOne)
                     {
-                        if (playerOne.Channel.Connected)
+                        try
                         {
-                            netStream = playerOne.Channel.GetStream(); //Obtenemos el canal de comunicación
-                            //netDataReader = new BinaryReader(netStream, Encoding.UTF8);
-                            netDataWriter = new BinaryWriter(netStream, Encoding.UTF8);
-                            netDataWriter.Write((Byte)(clientMessage));
-                            netDataWriter.Flush();
+                            if (playerOne.Channel.Connected)
+                            {
+                                netStream = playerOne.Channel.GetStream(); //Obtenemos el canal de comunicación
+                                                                           //netDataReader = new BinaryReader(netStream, Encoding.UTF8);
+                                netDataWriter = new BinaryWriter(netStream, Encoding.UTF8);
+                                netDataWriter.Write((Byte)(clientMessage.Message));
+                                netDataWriter.Write(ObjSerializer.ObjectToByteArray(clientMessage).Length);
+                                netDataWriter.Write(ObjSerializer.ObjectToByteArray(clientMessage));
+                                netDataWriter.Flush();
+                            }
+                            else
+                            {
+                                throw new SocketException();
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            throw new SocketException();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (LogWriter)
-                        {
-                            LogWriter.writeError("Error in SendMessage" + Environment.NewLine + ex.Message);
-                        }                        
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeError("Error in SendMessage to player one" + Environment.NewLine + ex.Message);
+                            }
+                        } 
                     }
                     break;
                 case 2:
-                    try
+                    lock (playerTwo)
                     {
-                        if (playerTwo.Channel.Connected)
+                        try
                         {
-                            netStream = playerTwo.Channel.GetStream(); //Obtenemos el canal de comunicación
-                            //netDataReader = new BinaryReader(netStream, Encoding.UTF8);
-                            netDataWriter = new BinaryWriter(netStream, Encoding.UTF8);
-                            netDataWriter.Write((Byte)(clientMessage));
-                            netDataWriter.Flush();
+                            if (playerTwo.Channel.Connected)
+                            {
+                                netStream = playerTwo.Channel.GetStream(); //Obtenemos el canal de comunicación
+                                                                           //netDataReader = new BinaryReader(netStream, Encoding.UTF8);
+                                netDataWriter = new BinaryWriter(netStream, Encoding.UTF8);
+                                netDataWriter.Write((Byte)(clientMessage.Message));
+                                netDataWriter.Write(ObjSerializer.ObjectToByteArray(clientMessage).Length);
+                                netDataWriter.Write(ObjSerializer.ObjectToByteArray(clientMessage));
+                                netDataWriter.Flush();
+                            }
+                            else
+                            {
+                                throw new SocketException();
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            throw new SocketException();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (LogWriter)
-                        {
-                            LogWriter.writeError("Error in SendMessage" + Environment.NewLine + ex.Message);
-                        }
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeError("Error in SendMessage to player two" + Environment.NewLine + ex.Message);
+                            }
+                        } 
                     }
                     break;
                 default:
                     break;
             }
-        }*/
+        }
 
         public void Finish()
         {
@@ -333,34 +369,120 @@ namespace BlackjackLibrary
 
         /// <summary>
         /// Este metodo revisa el estado actual del juego 
-        /// y determina si hay que enviar mensajes a los clientes
+        /// y determina si hay gane, empate o el juego continua
         /// </summary>
-        /// <returns>El numero del jugador que gana, 
-        /// 0 si hay empate y -1 si el juego continua
-        /// </returns>
-        private int CheckGameStatus()
+        /// <returns>Estado actual del juego</returns>
+        private GameResult CheckGameStatus()
         {
             lock (this)
             {
                 switch (playerOne.Status)
                 {
                     case PlayerStatus.FiveCards:
-                        break;
+                        if (playerTwo.Status == PlayerStatus.FiveCards)
+                        {
+                            return GameResult.Tie;
+                        }
+                        if (playerTwo.Status == PlayerStatus.Playing)
+                        {
+                            return GameResult.Continue;
+                        }
+                        else
+                        {
+                            return GameResult.PlayerOneWins;
+                        }
                     case PlayerStatus.BlackJack:
-                        break;
+                        if (playerTwo.Status == PlayerStatus.FiveCards)
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }
+                        if (playerTwo.Status == PlayerStatus.BlackJack)
+                        {
+                            return GameResult.Tie;
+                        }
+                        if (playerTwo.Status == PlayerStatus.Playing)
+                        {
+                            return GameResult.Continue;
+                        }
+                        else
+                        {
+                            return GameResult.PlayerOneWins;
+                        }
                     case PlayerStatus.TwentyOne:
-                        break;
+                        if (playerTwo.Status == PlayerStatus.FiveCards)
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }
+                        if (playerTwo.Status == PlayerStatus.BlackJack)
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }
+                        if (playerTwo.Status == PlayerStatus.TwentyOne)
+                        {
+                            return GameResult.Tie;
+                        }
+                        if (playerTwo.Status == PlayerStatus.Playing)
+                        {
+                            return GameResult.Continue;
+                        }
+                        else
+                        {
+                            return GameResult.PlayerOneWins;
+                        }
                     case PlayerStatus.Stay:
-                        break;
+                        if (playerTwo.Status == PlayerStatus.FiveCards)
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }
+                        if (playerTwo.Status == PlayerStatus.BlackJack)
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }
+                        if (playerTwo.Status == PlayerStatus.TwentyOne)
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }
+                        if (playerTwo.Status == PlayerStatus.Stay)
+                        {
+                            if (playerOne.Total > playerTwo.Total)
+                            {
+                                return GameResult.PlayerOneWins;
+                            }
+                            else
+                            {
+                                return GameResult.PlayerTwoWins;
+                            }
+                        }
+                        if (playerTwo.Status == PlayerStatus.Playing)
+                        {
+                            return GameResult.Continue;
+                        }
+                        else
+                        {
+                            return GameResult.PlayerOneWins;
+                        }
                     case PlayerStatus.Lost:
-                        break;
+                        if (playerTwo.Status == PlayerStatus.Lost)
+                        {
+                            return GameResult.Tie;
+                        }
+                        else
+                        {
+                            return GameResult.PlayerTwoWins;
+                        }                        
                     case PlayerStatus.Playing:
-                        break;
+                        return GameResult.Continue;                        
                     default:
-                        break;
-                }
-                return 0;
+                        return GameResult.Continue;
+                }                
             }
         }
+    }
+    public enum GameResult
+    {
+        Tie,
+        PlayerOneWins,
+        PlayerTwoWins,
+        Continue
     }
 }
