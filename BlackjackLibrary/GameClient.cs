@@ -23,14 +23,19 @@ namespace BlackjackLibrary
         private NetworkStream netStream;                // Stream del canal de respuesta para enviar datos hacia el servidor.
         private BinaryReader netDataReader;             // Utilizado para leer datos del canal de comunicación
         private BinaryWriter netDataWriter;             // Utilizado para escribir datos en el canal de comunicación
+        public int PlayerNumber { get; set; }
+        private static EvtLogWriter LogWriter = new EvtLogWriter("BlackJackClient", "Application"); //Allows to write to Windows Event Logs
 
         // Events
         public event EventHandler Connected; //Evento lanzado al conectarse al servidor
         public event MessageReceivedEventHandler MessageReceived; //Evento lanzado al enviar un mensaje
         public event EventHandler Disconnected; //Evento lanzado al desconectarse del servidor
         public event EventHandler ServerError; //Evento lanzado al obtener un mensaje de error desde el servidor
-        public event EventHandler NoMessages; //Evento lanzado al no obtener mensajes de respuesta por tipo de mensaje
-        
+        public event EventHandler GameTied; //Evento que sucede al empatar un juego
+        public event EventHandler PlayerWin; //Evento que se dispara al ganar un juego
+        public event EventHandler PlayerLoose; //Evento que se dispara al perder un juego
+        public event EventHandler GameContinue; //Evento que sucede cuando el juego puede continuar
+
         /*Estos métodos validan que la suscripción a los eventos no esté vacía. Si está vacía, no lanza el evento de forma innecesaria*/
         virtual protected void OnDisconnected()
         {
@@ -50,10 +55,28 @@ namespace BlackjackLibrary
                 Connected(this, EventArgs.Empty);
         }
 
-        virtual protected void OnNoMessages()
+        virtual protected void OnGameTied()
         {
-            if (NoMessages != null)
-                NoMessages(this, EventArgs.Empty);
+            if (GameTied != null)
+                GameTied(this, EventArgs.Empty);
+        }
+
+        virtual protected void OnPlayerWin()
+        {
+            if (PlayerWin != null)
+                PlayerWin(this, EventArgs.Empty);
+        }
+
+        virtual protected void OnPlayerLoose()
+        {
+            if (PlayerLoose != null)
+                PlayerLoose(this, EventArgs.Empty);
+        }
+
+        virtual protected void OnGameContinue()
+        {
+            if (GameContinue != null)
+                GameContinue(this, EventArgs.Empty);
         }
 
         virtual protected void OnMessageReceived(GameMessageEventArgs e)
@@ -99,7 +122,7 @@ namespace BlackjackLibrary
             }
             catch (Exception)
             {
-                Console.WriteLine("Error al establecer conexión con el servidor");
+                LogWriter.writeError("BlackJack Client: Error connecting to Server");
                 OnServerError();
             }
         }
@@ -115,7 +138,7 @@ namespace BlackjackLibrary
             }
             catch (Exception)
             {
-                Console.WriteLine("GameClient: Error connecting to Server");
+                LogWriter.writeError("BlackJack Client: Error connecting to Server");
                 OnServerError();
             }
 
@@ -126,8 +149,11 @@ namespace BlackjackLibrary
 
                 if (hello == Message.Hello)
                 {
-                    //Recibimos un Hello, procedemos a responder con un hello.
-                    netDataWriter.Write((Byte)Message.Hello);
+                    //Obtenemos el número de jugador
+                    this.PlayerNumber = netDataReader.ReadInt32();
+                    //Recibimos un Hello, procedemos a responder con un ready y nuestro número de jugador.
+                    netDataWriter.Write((Byte)Message.Ready);
+                    netDataWriter.Write(this.PlayerNumber);
                     netDataWriter.Flush();
 
                     //Esperamos el ACK del servidor
@@ -136,17 +162,19 @@ namespace BlackjackLibrary
                     {
                         //El servidor nos respondió el ACK. Podemos iniciar a enviar mensajes.
                         OnConnected(); //Disparamos el evento de conexión exitosa.
+                        GameMessageEventArgs g = new GameMessageEventArgs(new GameMessage(new Card(), Message.Ack, this.PlayerNumber));
+                        OnMessageReceived(g);
                     }
                     else
                     {
                         Disconnect();
-                        Console.WriteLine("Error al establecer conexión con el servidor");
+                        LogWriter.writeError("BlackJack Client: Error connecting to Server");
                     }
                 }
             }
             catch (Exception)
             {
-                Console.WriteLine("NetClient Manager: Error connecting to Server");
+                LogWriter.writeError("BlackJack Client: Error connecting to Server");
                 OnServerError();
             }
         }
@@ -166,21 +194,37 @@ namespace BlackjackLibrary
 
                     Message srvAns = (Message)Enum.Parse(typeof(Message), netDataReader.ReadByte().ToString());
 
-                    if (srvAns == Message.Deal)
+                    switch (srvAns)
                     {
-                        GameMessageEventArgs mEa = new GameMessageEventArgs(new GameMessage());
-                        OnMessageReceived(mEa); //Lanzamos el evento de carta recibida
-                    }
-                    if (srvAns == Message.Error)
-                    {
-                        OnServerError(); //Lanzamos el evento de error en el servidor
-                    }
-                    /*Faltan las demas interacciones*/
+                        case Message.Error:
+                            OnServerError(); //Lanzamos el evento de error en el servidor
+                            break;
+                        case Message.Ready:
+                            OnGameContinue(); //Evento de continuar el juego
+                            break;
+                        case Message.Deal:
+                            int sizeOfGameMessage = netDataReader.ReadInt32();
+                            GameMessage infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
+                            GameMessageEventArgs mEa = new GameMessageEventArgs(infoCard);
+                            OnMessageReceived(mEa); //Lanzamos el evento de carta recibida
+                            break;
+                        case Message.Tie:
+                            OnGameTied(); //Evento de juego empatado
+                            break;
+                        case Message.PlayerWins:
+                            OnPlayerWin(); //Evento de jugador gana
+                            break;
+                        case Message.PlayerLooses:
+                            OnPlayerLoose(); //Evento de jugador pierde
+                            break;
+                        default:
+                            break;
+                    }                    
                 }
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Error en envío de mensajes");
+                LogWriter.writeError("Blackjack Client: Error sending messages: " + Environment.NewLine + e.Message);
             }
         }
     }
