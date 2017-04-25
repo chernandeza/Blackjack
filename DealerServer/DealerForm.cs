@@ -13,7 +13,6 @@ namespace DealerServer
         Dictionary<String, Image> ImageDictionary;
         GameServer BlackJackServer;
         Deck myDealerDeck; //Eliminar
-        //Task taskAsync;
         private static EvtLogWriter LogWriter = new EvtLogWriter("BlackJackGame", "Application"); //Allows to write to Windows Event Logs
         int nextPlayer;
 

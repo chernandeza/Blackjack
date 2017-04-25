@@ -87,8 +87,7 @@ namespace BlackjackLibrary
 
         public GameClient()
         {
-            _isConnected = false;
-            connect();
+            _isConnected = false;            
         }
 
         public void Disconnect()
@@ -108,7 +107,7 @@ namespace BlackjackLibrary
         }
 
         // Start connection thread and login or register.
-        private void connect()
+        public void Connect()
         {
             try
             {
@@ -185,38 +184,48 @@ namespace BlackjackLibrary
         /// <param name="clientMsg">Mensaje a enviar al servidor</param>
         public void SendMessage(Message clientMsg)
         {
+            int sizeOfGameMessage = 0;
+            GameMessage infoCard = new GameMessage();
             try
             {
-                if (_isConnected)
-                {
-                    netDataWriter.Write((Byte)(clientMsg));
-                    netDataWriter.Flush();
+                netDataWriter.Write((Byte)(clientMsg));
+                netDataWriter.Flush();
 
+                while (_isConnected)
+                {
                     Message srvAns = (Message)Enum.Parse(typeof(Message), netDataReader.ReadByte().ToString());
 
                     switch (srvAns)
                     {
                         case Message.Error:
                             OnServerError(); //Lanzamos el evento de error en el servidor
-                            break;
+                            return;
                         case Message.Ready:
+                            sizeOfGameMessage = netDataReader.ReadInt32();
+                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnGameContinue(); //Evento de continuar el juego
-                            break;
+                            break;  //Se usa return para salir del método.                          
                         case Message.Deal:
-                            int sizeOfGameMessage = netDataReader.ReadInt32();
-                            GameMessage infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
+                            sizeOfGameMessage = netDataReader.ReadInt32();
+                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             GameMessageEventArgs mEa = new GameMessageEventArgs(infoCard);
-                            OnMessageReceived(mEa); //Lanzamos el evento de carta recibida
-                            break;
+                            OnMessageReceived(mEa); //Lanzamos el evento de carta recibida                            
+                            break; //Se usa break para esperar otra iteración con respuesta del servidor
                         case Message.Tie:
+                            sizeOfGameMessage = netDataReader.ReadInt32();
+                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));                            
                             OnGameTied(); //Evento de juego empatado
-                            break;
+                            return;
                         case Message.PlayerWins:
+                            sizeOfGameMessage = netDataReader.ReadInt32();
+                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnPlayerWin(); //Evento de jugador gana
-                            break;
+                            return;
                         case Message.PlayerLooses:
+                            sizeOfGameMessage = netDataReader.ReadInt32();
+                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnPlayerLoose(); //Evento de jugador pierde
-                            break;
+                            return;
                         default:
                             break;
                     }                    

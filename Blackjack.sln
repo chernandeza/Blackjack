@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DealerServer", "DealerServe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackjackLibrary", "BlackjackLibrary\BlackjackLibrary.csproj", "{50DDF732-32BA-4DCE-9CEA-1AB59642EC28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackJackClient", "BlackJackClient\BlackJackClient.csproj", "{0F2916C3-B084-4C29-9C27-FB4023C408B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{50DDF732-32BA-4DCE-9CEA-1AB59642EC28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50DDF732-32BA-4DCE-9CEA-1AB59642EC28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50DDF732-32BA-4DCE-9CEA-1AB59642EC28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F2916C3-B084-4C29-9C27-FB4023C408B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F2916C3-B084-4C29-9C27-FB4023C408B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F2916C3-B084-4C29-9C27-FB4023C408B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F2916C3-B084-4C29-9C27-FB4023C408B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
