@@ -116,6 +116,10 @@ namespace BlackjackLibrary
                         {
                             this.Status = PlayerStatus.BlackJack;
                         }
+                        else
+                        {
+                            this._myTotal += 10;
+                        }
                     }
                     else
                     {

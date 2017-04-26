@@ -12,10 +12,12 @@ namespace BlackJackClient
     {
         Dictionary<String, Image> ImageDictionary;
         GameClient gClient;
+        bool thePlayerStayed;
 
         public BlackJackClient()
         {
             InitializeComponent();
+            thePlayerStayed = false;
             ImageDictionary = new Dictionary<string, Image>();
             gClient = new GameClient();
             gClient.Connected += GClient_Connected;
@@ -74,10 +76,13 @@ namespace BlackJackClient
                         pb.Size = new Size(70, 90);
                         pb.SizeMode = PictureBoxSizeMode.StretchImage;
                         flowLayoutPanelCards.Controls.Add(pb);
-                        lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
                         lblValue.Text = "Deck Value: " + e.GM.DeckValue;
-                        btnDeal.Enabled = true;
-                        btnStay.Enabled = true;
+                        if (!thePlayerStayed)
+                        {
+                            lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+                            btnDeal.Enabled = true;
+                            btnStay.Enabled = true; 
+                        }
                     }));
                     break;
                 case BlackjackLibrary.Message.Stay:
@@ -173,24 +178,25 @@ namespace BlackJackClient
 
         private void btnDeal_Click(object sender, EventArgs e)
         {
-            this.gClient.SendMessage(BlackjackLibrary.Message.Deal);
             this.BeginInvoke(new MethodInvoker(delegate
             {
                 btnDeal.Enabled = false;
                 btnStay.Enabled = false;
                 lblGameStatus.Text = "Waiting for server answer...";
-            }));            
+                thePlayerStayed = true;
+            }));
+            this.gClient.SendMessage(BlackjackLibrary.Message.Deal);            
         }
 
         private void btnStay_Click(object sender, EventArgs e)
         {
-            this.gClient.SendMessage(BlackjackLibrary.Message.Stay);
             this.BeginInvoke(new MethodInvoker(delegate
             {
                 btnDeal.Enabled = false;
                 btnStay.Enabled = false;
                 lblGameStatus.Text = "Waiting for other players to finish...";
             }));
+            this.gClient.SendMessage(BlackjackLibrary.Message.Stay);            
         }
     }
 }
