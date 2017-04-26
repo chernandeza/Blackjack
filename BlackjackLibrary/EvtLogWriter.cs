@@ -71,7 +71,7 @@ namespace BlackjackLibrary
                 EventLog.CreateEventSource(Source, Log);
 
             EventLog.WriteEntry(Source, Evento,
-            EventLogEntryType.Warning, 17830);
+            EventLogEntryType.Warning, 1);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace BlackjackLibrary
                 EventLog.CreateEventSource(Source, Log);
 
             EventLog.WriteEntry(Source, Evento,
-            EventLogEntryType.Error, 17830);
+            EventLogEntryType.Error, 1);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace BlackjackLibrary
                 EventLog.CreateEventSource(Source, Log);
 
             EventLog.WriteEntry(Source, Evento,
-            EventLogEntryType.Information, 17830);
+            EventLogEntryType.Information, 1);
         }
         #endregion
     }

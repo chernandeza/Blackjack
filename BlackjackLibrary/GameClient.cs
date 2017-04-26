@@ -163,6 +163,7 @@ namespace BlackjackLibrary
                         OnConnected(); //Disparamos el evento de conexión exitosa.
                         GameMessageEventArgs g = new GameMessageEventArgs(new GameMessage(new Card(), Message.Ack, this.PlayerNumber));
                         OnMessageReceived(g);
+                        Receiver();
                     }
                     else
                     {
@@ -179,19 +180,14 @@ namespace BlackjackLibrary
         }
 
         /// <summary>
-        /// Envía un mensaje al servidor para que se almacene en la BD
+        /// This method only listens and raises events when a message is received
         /// </summary>
-        /// <param name="clientMsg">Mensaje a enviar al servidor</param>
-        public void SendMessage(Message clientMsg)
+        private void Receiver()
         {
-            int sizeOfGameMessage = 0;
-            GameMessage infoCard = new GameMessage();
             try
             {
-                netDataWriter.Write((Byte)(clientMsg));
-                netDataWriter.Write(this.PlayerNumber);
-                netDataWriter.Flush();
-
+                int sizeOfGameMessage = 0;
+                GameMessage infoCard = new GameMessage();
                 while (_isConnected)
                 {
                     Message srvAns = (Message)Enum.Parse(typeof(Message), netDataReader.ReadByte().ToString());
@@ -200,41 +196,71 @@ namespace BlackjackLibrary
                     {
                         case Message.Error:
                             OnServerError(); //Lanzamos el evento de error en el servidor
-                            return;
+                            break;
                         case Message.Ready:
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnGameContinue(); //Evento de continuar el juego
-                            return;  
+                            break;
                         case Message.Deal:
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             GameMessageEventArgs mEa = new GameMessageEventArgs(infoCard);
                             OnMessageReceived(mEa); //Lanzamos el evento de carta recibida                            
-                            break; //Se usa break para esperar otra iteración con respuesta del servidor
+                            break; 
                         case Message.Tie:
                             sizeOfGameMessage = netDataReader.ReadInt32();
-                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));                            
+                            infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnGameTied(); //Evento de juego empatado
-                            return; //Se usa return para salir del método.                          
+                            break; 
                         case Message.PlayerWins:
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnPlayerWin(); //Evento de jugador gana
-                            return;
+                            break;
                         case Message.PlayerLooses:
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnPlayerLoose(); //Evento de jugador pierde
-                            return;
+                            break;
                         default:
                             break;
-                    }                    
+                    }
                 }
             }
             catch (Exception e)
             {
-                LogWriter.writeError("Blackjack Client: Error sending messages: " + Environment.NewLine + e.Message);
+                lock (LogWriter)
+                {
+                    LogWriter.writeError("Blackjack Client: Error sending messages: " + Environment.NewLine + e.Message); 
+                }
+            }
+        }
+
+        /// <summary>
+        /// This method only sends messages to the server
+        /// </summary>
+        /// <param name="clientMsg">Mensaje a enviar al servidor</param>
+        public void SendMessage(Message clientMsg)
+        {
+            if (_isConnected)
+            {
+                try
+                {
+                    netDataWriter.Write((Byte)(clientMsg));
+                    netDataWriter.Write(this.PlayerNumber);
+                    netDataWriter.Flush();
+
+
+                }
+                catch (Exception e)
+                {
+                    LogWriter.writeError("Blackjack Client: Error sending messages: " + Environment.NewLine + e.Message);
+                } 
+            }
+            else
+            {
+                LogWriter.writeError("Blackjack Client: Se intentó escribir estando desconectado.");
             }
         }
     }
