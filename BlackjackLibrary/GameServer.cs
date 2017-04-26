@@ -503,7 +503,7 @@ namespace BlackjackLibrary
                                 }
                                 return GameResult.PlayerOneWins;
                             }
-                        case PlayerStatus.Stay:
+                        /*case PlayerStatus.Stay:
                             if (playerTwo.Status == PlayerStatus.FiveCards)
                             {
                                 lock (LogWriter)
@@ -555,7 +555,7 @@ namespace BlackjackLibrary
                                     return GameResult.PlayerTwoWins;
                                 }
                             }                     
-                            /*if (playerTwo.Status == PlayerStatus.Playing)
+                            if (playerTwo.Status == PlayerStatus.Playing)
                             {
                                 lock (LogWriter)
                                 {
