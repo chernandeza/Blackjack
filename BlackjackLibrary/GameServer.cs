@@ -81,7 +81,10 @@ namespace BlackjackLibrary
                 if (this.connectedClients < 2)
                 {
                     TcpClient tcpClient = listener.AcceptTcpClient();  // Acepta una conexión entrante
-                    this.connectedClients += 1;
+                    lock (this)
+                    {
+                        this.connectedClients += 1;
+                    }                    
                     if (this.connectedClients == 1)
                     {
                         playerOne.Channel = tcpClient;
@@ -139,11 +142,12 @@ namespace BlackjackLibrary
                         // Enviamos un mensaje de Acknowledge y luego iniciamos la interacción.
                         netDataWriter.Write((Byte)(Message.Ack));
                         netDataWriter.Flush();
-                        InteractWithClient(ref commChannel, ref netDataReader, ref netDataWriter);
                         lock (LogWriter)
                         {
-                            LogWriter.writeInfo("Player #" + playerNum.ToString() + " Connected Successfully. Ready to play"); 
+                            LogWriter.writeInfo("Player #" + playerNum.ToString() + " Connected Successfully. Ready to play");
                         }
+                        while (this.connectedClients < 2) { } //Evita recibir mensajes hasta que hayan 2 jugadores
+                        InteractWithClient(ref commChannel, ref netDataReader, ref netDataWriter);                        
                     }
                 }
                 else
