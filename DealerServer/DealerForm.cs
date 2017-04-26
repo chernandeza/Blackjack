@@ -20,10 +20,40 @@ namespace DealerServer
         {
             ImageDictionary = new Dictionary<string, Image>();
             BlackJackServer = new GameServer();
+            BlackJackServer.CardDealed += BlackJackServer_CardDealed;
+            BlackJackServer.ClientDisconnected += BlackJackServer_ClientDisconnected;
+            BlackJackServer.PlayerOneConnected += BlackJackServer_PlayerOneConnected;
+            BlackJackServer.PlayerTwoConnected += BlackJackServer_PlayerTwoConnected;
+            BlackJackServer.TooManyClients += BlackJackServer_TooManyClients;            
             nextPlayer = 1;         
             InitializeComponent();
         }
-        
+
+        private void BlackJackServer_TooManyClients(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void BlackJackServer_PlayerTwoConnected(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void BlackJackServer_PlayerOneConnected(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void BlackJackServer_ClientDisconnected(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void BlackJackServer_CardDealed(object sender, GameMessageEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
         private void LoadCardImages()
         {
             try

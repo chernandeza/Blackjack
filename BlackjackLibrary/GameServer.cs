@@ -273,19 +273,19 @@ namespace BlackjackLibrary
                             //Finish();
                             break;
                         case GameResult.Continue:
-                            //switch (playerNum)
-                            //{
-                              //  case 1:
+                            switch (playerNum)
+                            {
+                                case 1:
                                     GameMessage gm1Cont = new GameMessage(new Card(), Message.Ready, 1, playerOne.Total);
                                     SendMessage(gm1Cont, gm1Cont.PlayerNumber);
-                                //    break;
-                                //case 2:
+                                    break;
+                                case 2:
                                     GameMessage gm2Cont = new GameMessage(new Card(), Message.Ready, 2, playerTwo.Total);
                                     SendMessage(gm2Cont, gm2Cont.PlayerNumber);
-                                  //  break;
-                                //default:
-                                  //  break;
-                            //}                            
+                                    break;
+                                default:
+                                    break;
+                            }                            
                             break;
                         default:
                             break;
@@ -554,8 +554,8 @@ namespace BlackjackLibrary
                                     }
                                     return GameResult.PlayerTwoWins;
                                 }
-                            }                            
-                        if (playerTwo.Status == PlayerStatus.Playing)
+                            }                     
+                            /*if (playerTwo.Status == PlayerStatus.Playing)
                             {
                                 lock (LogWriter)
                                 {
@@ -570,7 +570,7 @@ namespace BlackjackLibrary
                                     LogWriter.writeInfo("Result: One Wins. Player 2 lost.");
                                 }
                                 return GameResult.PlayerOneWins;
-                            }
+                            }*/
                         case PlayerStatus.Lost:
                             if (playerTwo.Status == PlayerStatus.Lost)
                             {
