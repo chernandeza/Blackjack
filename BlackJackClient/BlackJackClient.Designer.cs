@@ -36,6 +36,7 @@
             this.flowLayoutPanelCards = new System.Windows.Forms.FlowLayoutPanel();
             this.lblGameNum = new System.Windows.Forms.Label();
             this.lblGameStatus = new System.Windows.Forms.Label();
+            this.lblValue = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -120,11 +121,22 @@
             this.lblGameStatus.TabIndex = 6;
             this.lblGameStatus.Text = "Not connected";
             // 
+            // lblValue
+            // 
+            this.lblValue.AutoSize = true;
+            this.lblValue.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblValue.Location = new System.Drawing.Point(583, 285);
+            this.lblValue.Name = "lblValue";
+            this.lblValue.Size = new System.Drawing.Size(92, 17);
+            this.lblValue.TabIndex = 7;
+            this.lblValue.Text = "Deck Value: 0";
+            // 
             // BlackJackClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(699, 324);
+            this.Controls.Add(this.lblValue);
             this.Controls.Add(this.lblGameStatus);
             this.Controls.Add(this.lblGameNum);
             this.Controls.Add(this.groupBox2);
@@ -151,6 +163,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelCards;
         private System.Windows.Forms.Label lblGameNum;
         private System.Windows.Forms.Label lblGameStatus;
+        private System.Windows.Forms.Label lblValue;
     }
 }
 

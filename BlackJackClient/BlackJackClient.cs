@@ -29,12 +29,22 @@ namespace BlackJackClient
 
         private void GClient_PlayerWin(object sender, EventArgs e)
         {
-            MessageBox.Show("You won the game!");
+            this.BeginInvoke(new MethodInvoker(delegate
+            {
+                MessageBox.Show("You won the game!");
+                lblGameStatus.ForeColor = Color.Green;
+                lblGameStatus.Text = "You won the game!";
+            }));
         }
 
         private void GClient_PlayerLoose(object sender, EventArgs e)
         {
-            MessageBox.Show("Game Lost!");
+            this.BeginInvoke(new MethodInvoker(delegate
+            {
+                MessageBox.Show("You lost the game!");
+                lblGameStatus.ForeColor = Color.Red;
+                lblGameStatus.Text = "You lost the game!";
+            }));
         }
 
         private void GClient_MessageReceived(object sender, GameMessageEventArgs e)
@@ -50,6 +60,7 @@ namespace BlackJackClient
                         lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
                         btnDeal.Enabled = true;
                         btnStay.Enabled = true;
+                        lblValue.Visible = true;
                     }));
                     break;
                 case BlackjackLibrary.Message.Ready:
@@ -60,10 +71,11 @@ namespace BlackJackClient
                         String imgID = e.GM.PlayedCard.FileID;
                         PictureBox pb = new PictureBox();
                         pb.Image = ImageDictionary[imgID];
-                        pb.Size = new Size(50, 70);
+                        pb.Size = new Size(70, 90);
                         pb.SizeMode = PictureBoxSizeMode.StretchImage;
                         flowLayoutPanelCards.Controls.Add(pb);
                         lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+                        lblValue.Text = "Deck Value: " + e.GM.DeckValue;
                         btnDeal.Enabled = true;
                         btnStay.Enabled = true;
                     }));
@@ -99,7 +111,7 @@ namespace BlackJackClient
             {
                 btnDeal.Enabled = true;
                 btnStay.Enabled = true;
-                lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+                lblGameStatus.Text = "Press the buttons to deal a card or to stay.";                
             }));
         }
 
@@ -142,6 +154,7 @@ namespace BlackJackClient
             flowLayoutPanelCards.Enabled = false;
             btnDeal.Enabled = false;
             btnStay.Enabled = false;
+            lblValue.Visible = false;
         }
 
         private void btnConnect_Click(object sender, EventArgs e)

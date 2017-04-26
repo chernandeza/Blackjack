@@ -188,7 +188,7 @@ namespace BlackjackLibrary
                                         Card dCard = gameDealer.Deal();
                                         playerOne.Play(dCard);
                                         //Enviar mensaje a jugador 1
-                                        GameMessage gm = new GameMessage(dCard, Message.Deal, 1);
+                                        GameMessage gm = new GameMessage(dCard, Message.Deal, 1, playerOne.Total);
                                         SendMessage(gm, gm.PlayerNumber);
                                         lock (LogWriter)
                                         {
@@ -202,7 +202,7 @@ namespace BlackjackLibrary
                                         Card dCard = gameDealer.Deal();
                                         playerTwo.Play(dCard);
                                         //Enviar mensaje a jugador 2
-                                        GameMessage gm = new GameMessage(dCard, Message.Deal, 2);
+                                        GameMessage gm = new GameMessage(dCard, Message.Deal, 2, playerTwo.Total);
                                         SendMessage(gm, gm.PlayerNumber);
                                         lock (LogWriter)
                                         {
@@ -241,35 +241,35 @@ namespace BlackjackLibrary
                     switch (resultado)
                     {
                         case GameResult.Tie: //Empate
-                            GameMessage gm1Tie = new GameMessage(new Card(), Message.Tie, 1);
+                            GameMessage gm1Tie = new GameMessage(new Card(), Message.Tie, 1, playerOne.Total);
                             SendMessage(gm1Tie, gm1Tie.PlayerNumber);
-                            GameMessage gm2Tie = new GameMessage(new Card(), Message.Tie, 2);
+                            GameMessage gm2Tie = new GameMessage(new Card(), Message.Tie, 2, playerTwo.Total);
                             SendMessage(gm2Tie, gm2Tie.PlayerNumber);
-                            Finish();
+                            //Finish();
                             break;
                         case GameResult.PlayerOneWins:
-                            GameMessage gm1Win1 = new GameMessage(new Card(), Message.PlayerWins, 1);
+                            GameMessage gm1Win1 = new GameMessage(new Card(), Message.PlayerWins, 1, playerOne.Total);
                             SendMessage(gm1Win1, gm1Win1.PlayerNumber);
-                            GameMessage gm2Win1 = new GameMessage(new Card(), Message.PlayerLooses, 2);
+                            GameMessage gm2Win1 = new GameMessage(new Card(), Message.PlayerLooses, 2, playerTwo.Total);
                             SendMessage(gm2Win1, gm2Win1.PlayerNumber);
-                            Finish();
+                            //Finish();
                             break;
                         case GameResult.PlayerTwoWins:
-                            GameMessage gm1Win2 = new GameMessage(new Card(), Message.PlayerLooses, 1);
+                            GameMessage gm1Win2 = new GameMessage(new Card(), Message.PlayerLooses, 1, playerOne.Total);
                             SendMessage(gm1Win2, gm1Win2.PlayerNumber);
-                            GameMessage gm2Win2 = new GameMessage(new Card(), Message.PlayerWins, 2);
+                            GameMessage gm2Win2 = new GameMessage(new Card(), Message.PlayerWins, 2, playerTwo.Total);
                             SendMessage(gm2Win2, gm2Win2.PlayerNumber);
-                            Finish();
+                            //Finish();
                             break;
                         case GameResult.Continue:
                             switch (playerNum)
                             {
                                 case 1:
-                                    GameMessage gm1Cont = new GameMessage(new Card(), Message.Ready, 1);
+                                    GameMessage gm1Cont = new GameMessage(new Card(), Message.Ready, 1, playerOne.Total);
                                     SendMessage(gm1Cont, gm1Cont.PlayerNumber);
                                     break;
                                 case 2:
-                                    GameMessage gm2Cont = new GameMessage(new Card(), Message.Ready, 2);
+                                    GameMessage gm2Cont = new GameMessage(new Card(), Message.Ready, 2, playerTwo.Total);
                                     SendMessage(gm2Cont, gm2Cont.PlayerNumber);
                                     break;
                                 default:
@@ -396,7 +396,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Tie");
+                                LogWriter.writeInfo("Result: Tie. Both Five Cards.");
                             }
                             return GameResult.Tie;                            
                         }
@@ -412,7 +412,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: One Wins");
+                                LogWriter.writeInfo("Result: One Wins. Five Cards.");
                             }
                             return GameResult.PlayerOneWins;
                         }
@@ -421,7 +421,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                LogWriter.writeInfo("Result: Two Wins. Five Cards.");
                             }
                             return GameResult.PlayerTwoWins;
                         }
@@ -429,7 +429,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Tie");
+                                LogWriter.writeInfo("Result: Tie. Both BlackJack.");
                             }
                             return GameResult.Tie;
                         }
@@ -445,7 +445,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: One Wins");
+                                LogWriter.writeInfo("Result: One Wins. BlackJack");
                             }
                             return GameResult.PlayerOneWins;
                         }
@@ -454,7 +454,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                LogWriter.writeInfo("Result: Two Wins. Five Cards.");
                             }
                             return GameResult.PlayerTwoWins;
                         }
@@ -462,7 +462,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                LogWriter.writeInfo("Result: Two Wins. BlackJack.");
                             }
                             return GameResult.PlayerTwoWins;
                         }
@@ -486,7 +486,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: One Wins");
+                                LogWriter.writeInfo("Result: One Wins. 21.");
                             }
                             return GameResult.PlayerOneWins;
                         }
@@ -495,7 +495,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                LogWriter.writeInfo("Result: Two Wins. Five Cards.");
                             }
                             return GameResult.PlayerTwoWins;
                         }
@@ -503,7 +503,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                LogWriter.writeInfo("Result: Two Wins. BlackJack.");
                             }
                             return GameResult.PlayerTwoWins;
                         }
@@ -511,7 +511,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                LogWriter.writeInfo("Result: Two Wins. 21.");
                             }
                             return GameResult.PlayerTwoWins;
                         }
@@ -521,7 +521,7 @@ namespace BlackjackLibrary
                             {
                                 lock (LogWriter)
                                 {
-                                    LogWriter.writeInfo("Result: One Wins");
+                                    LogWriter.writeInfo("Result: One Wins. Closer to 21.");
                                 }
                                 return GameResult.PlayerOneWins;
                             }
@@ -539,7 +539,7 @@ namespace BlackjackLibrary
                                 {
                                     lock (LogWriter)
                                     {
-                                        LogWriter.writeInfo("Result: Two Wins");
+                                        LogWriter.writeInfo("Result: Two Wins. Closer to 21.");
                                     }
                                     return GameResult.PlayerTwoWins;
                                 }   
@@ -557,7 +557,7 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: One Wins");
+                                LogWriter.writeInfo("Result: One Wins. Player 2 lost.");
                             }
                             return GameResult.PlayerOneWins;
                         }
@@ -566,17 +566,28 @@ namespace BlackjackLibrary
                         {
                             lock (LogWriter)
                             {
-                                LogWriter.writeInfo("Result: Tie");
+                                LogWriter.writeInfo("Result: Tie. Both Lost.");
                             }
                             return GameResult.Tie;
                         }
                         else
                         {
-                            lock (LogWriter)
+                            if (playerTwo.Status == PlayerStatus.Playing)
                             {
-                                LogWriter.writeInfo("Result: Two Wins");
+                                lock (LogWriter)
+                                {
+                                    LogWriter.writeInfo("Result: Continue");
+                                }
+                                return GameResult.Continue;
                             }
-                            return GameResult.PlayerTwoWins;
+                            else
+                            {
+                                lock (LogWriter)
+                                {
+                                    LogWriter.writeInfo("Result: Two Wins. Player 1 Lost.");
+                                }
+                                return GameResult.PlayerTwoWins;
+                            }                            
                         }                        
                     case PlayerStatus.Playing:
                         lock (LogWriter)

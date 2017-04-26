@@ -161,7 +161,7 @@ namespace BlackjackLibrary
                     {
                         //El servidor nos respondió el ACK. Podemos iniciar a enviar mensajes.
                         OnConnected(); //Disparamos el evento de conexión exitosa.
-                        GameMessageEventArgs g = new GameMessageEventArgs(new GameMessage(new Card(), Message.Ack, this.PlayerNumber));
+                        GameMessageEventArgs g = new GameMessageEventArgs(new GameMessage(new Card(), Message.Ack, this.PlayerNumber, 0));
                         OnMessageReceived(g);
                         Receiver();
                     }
