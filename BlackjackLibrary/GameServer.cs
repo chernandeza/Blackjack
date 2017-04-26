@@ -262,10 +262,19 @@ namespace BlackjackLibrary
                             Finish();
                             break;
                         case GameResult.Continue:
-                            GameMessage gm1Cont = new GameMessage(new Card(), Message.Ready, 1);
-                            SendMessage(gm1Cont, gm1Cont.PlayerNumber);
-                            GameMessage gm2Cont = new GameMessage(new Card(), Message.Ready, 2);
-                            SendMessage(gm2Cont, gm2Cont.PlayerNumber);
+                            switch (playerNum)
+                            {
+                                case 1:
+                                    GameMessage gm1Cont = new GameMessage(new Card(), Message.Ready, 1);
+                                    SendMessage(gm1Cont, gm1Cont.PlayerNumber);
+                                    break;
+                                case 2:
+                                    GameMessage gm2Cont = new GameMessage(new Card(), Message.Ready, 2);
+                                    SendMessage(gm2Cont, gm2Cont.PlayerNumber);
+                                    break;
+                                default:
+                                    break;
+                            }                            
                             break;
                         default:
                             break;
@@ -385,98 +394,201 @@ namespace BlackjackLibrary
                     case PlayerStatus.FiveCards:
                         if (playerTwo.Status == PlayerStatus.FiveCards)
                         {
-                            return GameResult.Tie;
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Tie");
+                            }
+                            return GameResult.Tie;                            
                         }
                         if (playerTwo.Status == PlayerStatus.Playing)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Continue");
+                            }
                             return GameResult.Continue;
                         }
                         else
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: One Wins");
+                            }
                             return GameResult.PlayerOneWins;
                         }
                     case PlayerStatus.BlackJack:
                         if (playerTwo.Status == PlayerStatus.FiveCards)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }
                         if (playerTwo.Status == PlayerStatus.BlackJack)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Tie");
+                            }
                             return GameResult.Tie;
                         }
                         if (playerTwo.Status == PlayerStatus.Playing)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Continue");
+                            }
                             return GameResult.Continue;
                         }
                         else
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: One Wins");
+                            }
                             return GameResult.PlayerOneWins;
                         }
                     case PlayerStatus.TwentyOne:
                         if (playerTwo.Status == PlayerStatus.FiveCards)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }
                         if (playerTwo.Status == PlayerStatus.BlackJack)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }
                         if (playerTwo.Status == PlayerStatus.TwentyOne)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Tie");
+                            }
                             return GameResult.Tie;
                         }
                         if (playerTwo.Status == PlayerStatus.Playing)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Continue");
+                            }
                             return GameResult.Continue;
                         }
                         else
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: One Wins");
+                            }
                             return GameResult.PlayerOneWins;
                         }
                     case PlayerStatus.Stay:
                         if (playerTwo.Status == PlayerStatus.FiveCards)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }
                         if (playerTwo.Status == PlayerStatus.BlackJack)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }
                         if (playerTwo.Status == PlayerStatus.TwentyOne)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }
                         if (playerTwo.Status == PlayerStatus.Stay)
                         {
                             if (playerOne.Total > playerTwo.Total)
                             {
+                                lock (LogWriter)
+                                {
+                                    LogWriter.writeInfo("Result: One Wins");
+                                }
                                 return GameResult.PlayerOneWins;
                             }
                             else
                             {
-                                return GameResult.PlayerTwoWins;
+                                if (playerOne.Total == playerTwo.Total)
+                                {
+                                    lock (LogWriter)
+                                    {
+                                        LogWriter.writeInfo("Result: Tie");
+                                    }
+                                    return GameResult.Tie;
+                                }
+                                else
+                                {
+                                    lock (LogWriter)
+                                    {
+                                        LogWriter.writeInfo("Result: Two Wins");
+                                    }
+                                    return GameResult.PlayerTwoWins;
+                                }   
                             }
                         }
                         if (playerTwo.Status == PlayerStatus.Playing)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Continue");
+                            }
                             return GameResult.Continue;
                         }
                         else
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: One Wins");
+                            }
                             return GameResult.PlayerOneWins;
                         }
                     case PlayerStatus.Lost:
                         if (playerTwo.Status == PlayerStatus.Lost)
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Tie");
+                            }
                             return GameResult.Tie;
                         }
                         else
                         {
+                            lock (LogWriter)
+                            {
+                                LogWriter.writeInfo("Result: Two Wins");
+                            }
                             return GameResult.PlayerTwoWins;
                         }                        
                     case PlayerStatus.Playing:
+                        lock (LogWriter)
+                        {
+                            LogWriter.writeInfo("Result: Continue");
+                        }
                         return GameResult.Continue;                        
                     default:
+                        lock (LogWriter)
+                        {
+                            LogWriter.writeInfo("Result: Default Continue");
+                        }
                         return GameResult.Continue;
                 }                
             }
