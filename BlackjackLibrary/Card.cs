@@ -2,6 +2,7 @@
 
 namespace BlackjackLibrary
 {
+    [Serializable]
     public class Card
     {
         private Suit _suit;
@@ -40,6 +41,7 @@ namespace BlackjackLibrary
         }
     }
 
+    [Serializable]
     public enum Suit
     {
         Clubs,
@@ -48,6 +50,7 @@ namespace BlackjackLibrary
         Spades
     }
 
+    [Serializable]
     public enum CardValue 
     {
         One, //This value is used to control the Ace as 11 or Ace as 1 condition.

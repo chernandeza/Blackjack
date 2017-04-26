@@ -189,6 +189,7 @@ namespace BlackjackLibrary
             try
             {
                 netDataWriter.Write((Byte)(clientMsg));
+                netDataWriter.Write(this.PlayerNumber);
                 netDataWriter.Flush();
 
                 while (_isConnected)
@@ -204,7 +205,7 @@ namespace BlackjackLibrary
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
                             OnGameContinue(); //Evento de continuar el juego
-                            break;  //Se usa return para salir del método.                          
+                            return;  
                         case Message.Deal:
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));
@@ -215,7 +216,7 @@ namespace BlackjackLibrary
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));                            
                             OnGameTied(); //Evento de juego empatado
-                            return;
+                            return; //Se usa return para salir del método.                          
                         case Message.PlayerWins:
                             sizeOfGameMessage = netDataReader.ReadInt32();
                             infoCard = (GameMessage)ObjSerializer.ByteArrayToObject(netDataReader.ReadBytes(sizeOfGameMessage));

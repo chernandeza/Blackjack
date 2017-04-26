@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using BlackjackLibrary;
@@ -33,12 +29,12 @@ namespace BlackJackClient
 
         private void GClient_PlayerWin(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("You won the game!");
         }
 
         private void GClient_PlayerLoose(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Game Lost!");
         }
 
         private void GClient_MessageReceived(object sender, GameMessageEventArgs e)
@@ -59,7 +55,18 @@ namespace BlackJackClient
                 case BlackjackLibrary.Message.Ready:
                     break;
                 case BlackjackLibrary.Message.Deal:
-
+                    this.BeginInvoke(new MethodInvoker(delegate
+                    {
+                        String imgID = e.GM.PlayedCard.FileID;
+                        PictureBox pb = new PictureBox();
+                        pb.Image = ImageDictionary[imgID];
+                        pb.Size = new Size(50, 70);
+                        pb.SizeMode = PictureBoxSizeMode.StretchImage;
+                        flowLayoutPanelCards.Controls.Add(pb);
+                        lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+                        btnDeal.Enabled = true;
+                        btnStay.Enabled = true;
+                    }));
                     break;
                 case BlackjackLibrary.Message.Stay:
                     break;
@@ -83,17 +90,24 @@ namespace BlackJackClient
 
         private void GClient_GameTied(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Tied game!");
         }
 
         private void GClient_GameContinue(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            this.BeginInvoke(new MethodInvoker(delegate
+            {
+                btnDeal.Enabled = true;
+                btnStay.Enabled = true;
+                lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+            }));
         }
 
         private void GClient_Disconnected(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Connection error!");
+            this.gClient.Disconnect();
+            Application.Exit();
         }
 
         private void GClient_Connected(object sender, EventArgs e)
@@ -142,6 +156,28 @@ namespace BlackJackClient
             {
                 MessageBox.Show("Error connecting: " + ex.Message, "BlackJack", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnDeal_Click(object sender, EventArgs e)
+        {
+            this.gClient.SendMessage(BlackjackLibrary.Message.Deal);
+            this.BeginInvoke(new MethodInvoker(delegate
+            {
+                btnDeal.Enabled = false;
+                btnStay.Enabled = false;
+                lblGameStatus.Text = "Waiting for server answer...";
+            }));            
+        }
+
+        private void btnStay_Click(object sender, EventArgs e)
+        {
+            this.gClient.SendMessage(BlackjackLibrary.Message.Stay);
+            this.BeginInvoke(new MethodInvoker(delegate
+            {
+                btnDeal.Enabled = false;
+                btnStay.Enabled = false;
+                lblGameStatus.Text = "Waiting for other players to finish...";
+            }));
         }
     }
 }

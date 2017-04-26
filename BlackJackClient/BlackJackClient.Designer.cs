@@ -58,6 +58,7 @@
             this.btnDeal.TabIndex = 1;
             this.btnDeal.Text = "Deal";
             this.btnDeal.UseVisualStyleBackColor = true;
+            this.btnDeal.Click += new System.EventHandler(this.btnDeal_Click);
             // 
             // btnStay
             // 
@@ -67,6 +68,7 @@
             this.btnStay.TabIndex = 2;
             this.btnStay.Text = "Stay";
             this.btnStay.UseVisualStyleBackColor = true;
+            this.btnStay.Click += new System.EventHandler(this.btnStay_Click);
             // 
             // groupBox1
             // 
