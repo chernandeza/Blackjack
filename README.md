@@ -8,8 +8,8 @@ Antes de ejecutar la aplicación de primera vez, se deben crear los eventos de b
 de administración ("Run as Administrator") y deben ejecutarse los siguientes comandos.
 
 eventcreate /ID 1 /L APPLICATION /T INFORMATION  /SO BlackJackGame /D "My first log"
-eventcreate /ID 1 /L APPLICATION /T INFORMATION  /SO BlackJackClient /D "My first log"
 
+eventcreate /ID 1 /L APPLICATION /T INFORMATION  /SO BlackJackClient /D "My first log"
 
 Con estos comandos, se crearán eventos en la bitácora de aplicación de Windows donde se podrán ver errores, avance de la aplicación,
 entre otros.
