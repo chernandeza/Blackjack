@@ -232,13 +232,15 @@ namespace BlackjackLibrary
                                 case 1:
                                     lock (playerOne)
                                     {
-                                        playerOne.Status = PlayerStatus.Stay; 
+                                        playerOne.IsPlaying = false;
+                                        playerOne.Status = PlayerStatus.Stay;
                                     }
                                     break;
                                 case 2:
                                     lock (playerTwo)
                                     {
-                                        playerTwo.Status = PlayerStatus.Stay; 
+                                        playerTwo.IsPlaying = false;
+                                        playerTwo.Status = PlayerStatus.Stay;
                                     }
                                     break;
                                 default:
@@ -400,7 +402,7 @@ namespace BlackjackLibrary
         {
             lock (this)
             {
-                if (playerOne.Status == PlayerStatus.Stay && playerTwo.Status == PlayerStatus.Stay)
+                if (!playerOne.IsPlaying && !playerTwo.IsPlaying)
                 {
                     switch (playerOne.Status)
                     {
@@ -412,14 +414,6 @@ namespace BlackjackLibrary
                                     LogWriter.writeInfo("Result: Tie. Both Five Cards.");
                                 }
                                 return GameResult.Tie;
-                            }
-                            if (playerTwo.Status == PlayerStatus.Playing)
-                            {
-                                lock (LogWriter)
-                                {
-                                    LogWriter.writeInfo("Result: Continue");
-                                }
-                                return GameResult.Continue;
                             }
                             else
                             {
@@ -445,14 +439,6 @@ namespace BlackjackLibrary
                                     LogWriter.writeInfo("Result: Tie. Both BlackJack.");
                                 }
                                 return GameResult.Tie;
-                            }
-                            if (playerTwo.Status == PlayerStatus.Playing)
-                            {
-                                lock (LogWriter)
-                                {
-                                    LogWriter.writeInfo("Result: Continue");
-                                }
-                                return GameResult.Continue;
                             }
                             else
                             {
@@ -487,14 +473,6 @@ namespace BlackjackLibrary
                                 }
                                 return GameResult.Tie;
                             }
-                            if (playerTwo.Status == PlayerStatus.Playing)
-                            {
-                                lock (LogWriter)
-                                {
-                                    LogWriter.writeInfo("Result: Continue");
-                                }
-                                return GameResult.Continue;
-                            }
                             else
                             {
                                 lock (LogWriter)
@@ -503,7 +481,7 @@ namespace BlackjackLibrary
                                 }
                                 return GameResult.PlayerOneWins;
                             }
-                        /*case PlayerStatus.Stay:
+                        case PlayerStatus.Stay:
                             if (playerTwo.Status == PlayerStatus.FiveCards)
                             {
                                 lock (LogWriter)
@@ -528,49 +506,52 @@ namespace BlackjackLibrary
                                 }
                                 return GameResult.PlayerTwoWins;
                             }
-                            if (playerOne.Total > playerTwo.Total)
+                            if (playerTwo.Status == PlayerStatus.Stay)
                             {
-                                lock (LogWriter)
-                                {
-                                    LogWriter.writeInfo("Result: One Wins. Closer to 21.");
-                                }
-                                return GameResult.PlayerOneWins;
-                            }
-                            else
-                            {
-                                if (playerOne.Total == playerTwo.Total)
+                                if (playerOne.Total > playerTwo.Total)
                                 {
                                     lock (LogWriter)
                                     {
-                                        LogWriter.writeInfo("Result: Tie");
+                                        LogWriter.writeInfo("Result: One Wins. Closer to 21.");
                                     }
-                                    return GameResult.Tie;
+                                    return GameResult.PlayerOneWins;
                                 }
                                 else
                                 {
-                                    lock (LogWriter)
+                                    if (playerOne.Total == playerTwo.Total)
                                     {
-                                        LogWriter.writeInfo("Result: Two Wins. Closer to 21.");
+                                        lock (LogWriter)
+                                        {
+                                            LogWriter.writeInfo("Result: Tie");
+                                        }
+                                        return GameResult.Tie;
                                     }
-                                    return GameResult.PlayerTwoWins;
+                                    else
+                                    {
+                                        lock (LogWriter)
+                                        {
+                                            LogWriter.writeInfo("Result: Two Wins. Closer to 21.");
+                                        }
+                                        return GameResult.PlayerTwoWins;
+                                    }
                                 }
-                            }                     
-                            if (playerTwo.Status == PlayerStatus.Playing)
-                            {
-                                lock (LogWriter)
-                                {
-                                    LogWriter.writeInfo("Result: Continue");
-                                }
-                                return GameResult.Continue;
                             }
-                            else
+                            if (playerTwo.Status == PlayerStatus.Lost)
                             {
                                 lock (LogWriter)
                                 {
                                     LogWriter.writeInfo("Result: One Wins. Player 2 lost.");
                                 }
                                 return GameResult.PlayerOneWins;
-                            }*/
+                            }
+                            else
+                            {
+                                lock (LogWriter)
+                                {
+                                    LogWriter.writeError("Result: This should never happen.");
+                                }
+                                return GameResult.Continue;
+                            }                            
                         case PlayerStatus.Lost:
                             if (playerTwo.Status == PlayerStatus.Lost)
                             {
@@ -582,29 +563,12 @@ namespace BlackjackLibrary
                             }
                             else
                             {
-                                if (playerTwo.Status == PlayerStatus.Playing)
+                                lock (LogWriter)
                                 {
-                                    lock (LogWriter)
-                                    {
-                                        LogWriter.writeInfo("Result: Continue");
-                                    }
-                                    return GameResult.Continue;
+                                    LogWriter.writeInfo("Result: Two Wins. Player 1 Lost.");
                                 }
-                                else
-                                {
-                                    lock (LogWriter)
-                                    {
-                                        LogWriter.writeInfo("Result: Two Wins. Player 1 Lost.");
-                                    }
-                                    return GameResult.PlayerTwoWins;
-                                }
-                            }
-                        case PlayerStatus.Playing:
-                            lock (LogWriter)
-                            {
-                                LogWriter.writeInfo("Result: Continue");
-                            }
-                            return GameResult.Continue;
+                                return GameResult.PlayerTwoWins;                                
+                            }                            
                         default:
                             lock (LogWriter)
                             {
@@ -617,7 +581,7 @@ namespace BlackjackLibrary
                 {
                     lock (LogWriter)
                     {
-                        LogWriter.writeInfo("Result: Continue. Not all players have finished.");
+                        LogWriter.writeInfo("Result: Continue. Players still playing.");
                     }
                     return GameResult.Continue;
                 }

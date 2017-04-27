@@ -37,12 +37,21 @@ namespace BlackjackLibrary
             set { _status = value; }
         }
 
+        private bool _isPlaying;
+
+        public bool IsPlaying
+        {
+            get { return _isPlaying; }
+            set { _isPlaying = value; }
+        }
+
         public Player()
         {
             this._myCards = new List<Card>();
             this._myTotal = 0;
             this.Channel = new TcpClient();
             this._status = PlayerStatus.Playing;
+            this._isPlaying = true;
         }
 
         /// <summary>
