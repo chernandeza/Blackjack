@@ -13,11 +13,13 @@ namespace BlackJackClient
         Dictionary<String, Image> ImageDictionary;
         GameClient gClient;
         bool thePlayerStayed;
+        int myDeckValue;
 
         public BlackJackClient()
         {
             InitializeComponent();
             thePlayerStayed = false;
+            myDeckValue = 0;
             ImageDictionary = new Dictionary<string, Image>();
             gClient = new GameClient();
             gClient.Connected += GClient_Connected;
@@ -76,12 +78,19 @@ namespace BlackJackClient
                         pb.Size = new Size(70, 90);
                         pb.SizeMode = PictureBoxSizeMode.StretchImage;
                         flowLayoutPanelCards.Controls.Add(pb);
+                        myDeckValue = e.GM.DeckValue;
                         lblValue.Text = "Deck Value: " + e.GM.DeckValue;
                         if (!thePlayerStayed)
                         {
                             lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
                             btnDeal.Enabled = true;
                             btnStay.Enabled = true; 
+                        }
+                        if (e.GM.DeckValue > 21)
+                        {
+                            lblGameStatus.Text = "You have more than 21. You are losing this game.";
+                            btnDeal.Enabled = false;
+                            btnStay.Enabled = false;
                         }
                     }));
                     break;
@@ -119,6 +128,12 @@ namespace BlackJackClient
                     btnDeal.Enabled = true;
                     btnStay.Enabled = true;
                     lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+                }
+                if (myDeckValue > 21)
+                {
+                    lblGameStatus.Text = "You have more than 21. You are losing this game.";
+                    btnDeal.Enabled = false;
+                    btnStay.Enabled = false;
                 }
             }));
         }

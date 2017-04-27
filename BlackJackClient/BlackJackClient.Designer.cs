@@ -114,10 +114,10 @@
             // lblGameStatus
             // 
             this.lblGameStatus.AutoSize = true;
-            this.lblGameStatus.Font = new System.Drawing.Font("Segoe UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblGameStatus.Location = new System.Drawing.Point(307, 287);
+            this.lblGameStatus.Font = new System.Drawing.Font("Segoe UI", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGameStatus.Location = new System.Drawing.Point(304, 285);
             this.lblGameStatus.Name = "lblGameStatus";
-            this.lblGameStatus.Size = new System.Drawing.Size(89, 15);
+            this.lblGameStatus.Size = new System.Drawing.Size(82, 13);
             this.lblGameStatus.TabIndex = 6;
             this.lblGameStatus.Text = "Not connected";
             // 

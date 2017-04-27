@@ -24,6 +24,10 @@ namespace BlackjackLibrary
         public event EventHandler ClientDisconnected; //Evento se dispara cuando se desconecta un cliente.
         public event EventHandler TooManyClients; // Evento disparado al exceder la cantidad de clientes aceptados
         public event MessageReceivedEventHandler CardDealed; //Evento lanzado al repartir una carta
+        public event EventHandler PlayerOneWins; // Evento se dispara cuando gana el jugador 1
+        public event EventHandler PlayerTwoWins; // Evento se dispara cuando gana el jugador 2
+        public event EventHandler GameTied; // Evento se dispara cuando el juego se empata
+
 
 
         /*Estos métodos validan que la suscripción a los eventos no esté vacía. Si está vacía, no lanza el evento de forma innecesaria*/
@@ -43,6 +47,24 @@ namespace BlackjackLibrary
         {
             if (PlayerTwoConnected != null)
                 PlayerTwoConnected(this, EventArgs.Empty);
+        }
+
+        virtual protected void OnP1Wins()
+        {
+            if (PlayerOneWins != null)
+                PlayerOneWins(this, EventArgs.Empty);
+        }
+
+        virtual protected void OnP2Wins()
+        {
+            if (PlayerTwoWins != null)
+                PlayerTwoWins(this, EventArgs.Empty);
+        }
+
+        virtual protected void OnGameTied()
+        {
+            if (GameTied != null)
+                GameTied(this, EventArgs.Empty);
         }
 
         virtual protected void OnTooManyClients()
@@ -109,7 +131,8 @@ namespace BlackjackLibrary
                 }
                 else
                 {
-                    OnTooManyClients();
+                    if(this.connectedClients != 2)
+                        OnTooManyClients();
                 }
             }
         }
@@ -423,6 +446,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Tie. Both Five Cards.");
                                 }
+                                OnGameTied();
                                 return GameResult.Tie;
                             }
                             else
@@ -431,6 +455,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: One Wins. Five Cards.");
                                 }
+                                OnP1Wins();
                                 return GameResult.PlayerOneWins;
                             }
                         case PlayerStatus.BlackJack:
@@ -440,6 +465,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. Five Cards.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;
                             }
                             if (playerTwo.Status == PlayerStatus.BlackJack)
@@ -448,6 +474,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Tie. Both BlackJack.");
                                 }
+                                OnGameTied();
                                 return GameResult.Tie;
                             }
                             else
@@ -456,6 +483,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: One Wins. BlackJack");
                                 }
+                                OnP1Wins();
                                 return GameResult.PlayerOneWins;
                             }
                         case PlayerStatus.TwentyOne:
@@ -465,6 +493,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. Five Cards.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;
                             }
                             if (playerTwo.Status == PlayerStatus.BlackJack)
@@ -473,6 +502,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. BlackJack.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;
                             }
                             if (playerTwo.Status == PlayerStatus.TwentyOne)
@@ -481,6 +511,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Tie");
                                 }
+                                OnGameTied();
                                 return GameResult.Tie;
                             }
                             else
@@ -489,6 +520,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: One Wins. 21.");
                                 }
+                                OnP1Wins();
                                 return GameResult.PlayerOneWins;
                             }
                         case PlayerStatus.Stay:
@@ -498,6 +530,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. Five Cards.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;
                             }
                             if (playerTwo.Status == PlayerStatus.BlackJack)
@@ -506,6 +539,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. BlackJack.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;
                             }
                             if (playerTwo.Status == PlayerStatus.TwentyOne)
@@ -514,6 +548,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. 21.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;
                             }
                             if (playerTwo.Status == PlayerStatus.Stay)
@@ -524,6 +559,7 @@ namespace BlackjackLibrary
                                     {
                                         LogWriter.writeInfo("Result: One Wins. Closer to 21.");
                                     }
+                                    OnP1Wins();
                                     return GameResult.PlayerOneWins;
                                 }
                                 else
@@ -534,6 +570,7 @@ namespace BlackjackLibrary
                                         {
                                             LogWriter.writeInfo("Result: Tie");
                                         }
+                                        OnGameTied();
                                         return GameResult.Tie;
                                     }
                                     else
@@ -542,6 +579,7 @@ namespace BlackjackLibrary
                                         {
                                             LogWriter.writeInfo("Result: Two Wins. Closer to 21.");
                                         }
+                                        OnP2Wins();
                                         return GameResult.PlayerTwoWins;
                                     }
                                 }
@@ -552,6 +590,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: One Wins. Player 2 lost.");
                                 }
+                                OnP1Wins();
                                 return GameResult.PlayerOneWins;
                             }
                             else
@@ -577,6 +616,7 @@ namespace BlackjackLibrary
                                 {
                                     LogWriter.writeInfo("Result: Two Wins. Player 1 Lost.");
                                 }
+                                OnP2Wins();
                                 return GameResult.PlayerTwoWins;                                
                             }                            
                         default:
@@ -589,11 +629,23 @@ namespace BlackjackLibrary
                 }
                 else
                 {
-                    lock (LogWriter)
+                    if (playerOne.Status == PlayerStatus.Lost && playerTwo.Status == PlayerStatus.Lost)
                     {
-                        LogWriter.writeInfo("Result: Continue. Players still playing.");
+                        lock (LogWriter)
+                        {
+                            LogWriter.writeInfo("Result: Tie. Both Lost.");
+                        }
+                        OnGameTied();
+                        return GameResult.Tie;
                     }
-                    return GameResult.Continue;
+                    else
+                    {
+                        lock (LogWriter)
+                        {
+                            LogWriter.writeInfo("Result: Continue. Players still playing.");
+                        }
+                        return GameResult.Continue;
+                    }                    
                 }
             }
         }
