@@ -233,14 +233,24 @@ namespace BlackjackLibrary
                                     lock (playerOne)
                                     {
                                         playerOne.IsPlaying = false;
-                                        playerOne.Status = PlayerStatus.Stay;
+                                        if (playerOne.Status != PlayerStatus.Lost)
+                                            playerOne.Status = PlayerStatus.Stay;
+                                        lock (LogWriter)
+                                        {
+                                            LogWriter.writeInfo("Player one Stays.");
+                                        }
                                     }
                                     break;
                                 case 2:
                                     lock (playerTwo)
                                     {
                                         playerTwo.IsPlaying = false;
-                                        playerTwo.Status = PlayerStatus.Stay;
+                                        if (playerTwo.Status != PlayerStatus.Lost)
+                                            playerTwo.Status = PlayerStatus.Stay;
+                                        lock (LogWriter)
+                                        {
+                                            LogWriter.writeInfo("Player two Stays.");
+                                        }
                                     }
                                     break;
                                 default:

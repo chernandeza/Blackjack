@@ -114,9 +114,12 @@ namespace BlackJackClient
         {
             this.BeginInvoke(new MethodInvoker(delegate
             {
-                btnDeal.Enabled = true;
-                btnStay.Enabled = true;
-                lblGameStatus.Text = "Press the buttons to deal a card or to stay.";                
+                if (!thePlayerStayed)
+                {
+                    btnDeal.Enabled = true;
+                    btnStay.Enabled = true;
+                    lblGameStatus.Text = "Press the buttons to deal a card or to stay.";
+                }
             }));
         }
 
@@ -182,8 +185,7 @@ namespace BlackJackClient
             {
                 btnDeal.Enabled = false;
                 btnStay.Enabled = false;
-                lblGameStatus.Text = "Waiting for server answer...";
-                thePlayerStayed = true;
+                lblGameStatus.Text = "Waiting for server answer...";                
             }));
             this.gClient.SendMessage(BlackjackLibrary.Message.Deal);            
         }
@@ -195,6 +197,7 @@ namespace BlackJackClient
                 btnDeal.Enabled = false;
                 btnStay.Enabled = false;
                 lblGameStatus.Text = "Waiting for other players to finish...";
+                thePlayerStayed = true;
             }));
             this.gClient.SendMessage(BlackjackLibrary.Message.Stay);            
         }
