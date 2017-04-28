@@ -649,7 +649,8 @@ namespace BlackjackLibrary
                 }
             }
         }
-    }
+    }    
+
     public enum GameResult
     {
         Tie,

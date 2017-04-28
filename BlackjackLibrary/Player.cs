@@ -160,16 +160,16 @@ namespace BlackjackLibrary
             {
                 this.Status = PlayerStatus.TwentyOne;
             }
-        }
+        }        
     }
 
     public enum PlayerStatus
     {
-        Playing,
-        Stay,
         FiveCards,
-        TwentyOne,
         BlackJack,
+        TwentyOne,
+        Stay,
+        Playing,           
         Lost
     }
 }
